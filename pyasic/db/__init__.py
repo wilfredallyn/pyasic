@@ -4,15 +4,6 @@ import sqlite3
 from pyasic.miners.factory import get_miner
 
 
-def connect_db(db_file="pyasic.db") -> sqlite3.Connection:
-    try:
-        conn = sqlite3.connect(db_file)
-        # conn = create_engine(f'sqlite:///{db_file}') sqlalchemy engine
-        return conn
-    except sqlite3.Error:
-        raise ConnectionError(f"Cannot open sqlite database")
-
-
 def preprocess_data(miner_data: dict) -> pd.DataFrame:
     hashboards = flatten_hashboards(miner_data["hashboards"])
     fans = flatten_fans(miner_data["fans"])
@@ -59,3 +50,9 @@ async def save_miner_data(
         print(f"Stopped saving miner data to {db_file}")
         # TODO: cleanup
         raise
+
+
+def load_db(db_file: str = "miner.db", table_name: str = "data"):
+    with sqlite3.connect(db_file) as conn:
+        df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+    return df

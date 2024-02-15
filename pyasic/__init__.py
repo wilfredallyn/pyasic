@@ -22,4 +22,5 @@ from pyasic.miners import *
 from pyasic.network import MinerNetwork
 from pyasic.rpc import *
 from pyasic.ssh import *
+from pyasic.viz import *
 from pyasic.web import *
