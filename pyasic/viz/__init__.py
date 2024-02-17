@@ -54,3 +54,57 @@ def get_hashrate_fig(df):
     fig.update_yaxes(range=[0, avg_hashrate * 1.1])
 
     return fig
+
+
+def get_temperature_fig(df):
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+    temp_cols = [col for col in df.columns if "hashboards_" in col and "temp" in col]
+    for col in temp_cols:
+        fig.add_trace(
+            go.Scatter(
+                x=df["datetime"],
+                y=df[col],
+                name=col.replace("hashboards_", "")
+                .replace("_chip_temp", " Chip")
+                .replace("_temp", " Board"),
+            ),
+            secondary_y=False,
+        )
+
+    fan_cols = [
+        col for col in df.columns if col.startswith("fans_") and col.endswith("_speed")
+    ]
+    for col in fan_cols:
+        fig.add_trace(
+            go.Scatter(
+                x=df["datetime"],
+                y=df[col],
+                name=col.replace("fans_", "Fan ").replace("_speed", ""),
+                line=dict(dash="dot"),
+            ),
+            secondary_y=True,
+        )
+
+    fig.update_layout(title="Temperature and Fan Speed over Time", xaxis_title="Time")
+    fig.update_yaxes(title_text="Temperature (°C)", secondary_y=False)
+    fig.update_yaxes(title_text="Speed (RPM)", secondary_y=True)
+
+    fig.update_yaxes(range=[0, 115], secondary_y=False)
+    fig.update_yaxes(range=[0, 8000], secondary_y=True)
+
+    fig.add_hline(
+        y=110,
+        line_color="red",
+        annotation_text="Dangerous (110 °C)",
+        annotation_position="bottom left",
+        secondary_y=False,
+    )
+    fig.add_hline(
+        y=100,
+        line_color="orange",
+        annotation_text="Hot (100 °C)",
+        annotation_position="bottom left",
+        secondary_y=False,
+    )
+
+    return fig
