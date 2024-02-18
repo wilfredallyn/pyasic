@@ -1,3 +1,4 @@
+import argparse
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output
@@ -49,10 +50,23 @@ app.layout = dbc.Container(
     fluid=True,
 )
 
+parser = argparse.ArgumentParser(description="miner data dashboard")
+parser.add_argument(
+    "data_file",
+    type=str,
+    nargs="?",
+    default="miner_data.db",
+    help="File path to miner data",
+)
+parser.add_argument(
+    "table_name", type=str, nargs="?", default="data", help="File path to miner data"
+)
+args = parser.parse_args()
+
 
 @app.callback(Output("data-store", "data"), [Input("url", "pathname")])
 def load_data(pathname):
-    df = load_db(db_file="miner.db", table_name="data")
+    df = load_db(args.data_file, table_name=args.table_name)
     # json serialize for dcc.store
     return json.dumps(df.to_json(orient="split"))
 

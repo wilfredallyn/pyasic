@@ -33,8 +33,8 @@ def flatten_fans(fans_data: dict) -> dict:
     return fans
 
 
-async def save_miner_data(
-    ip: str, db_file: str = "miner.db", table_name: str = "data", sleep_mins: int = 5
+async def write_data(
+    ip: str, data_file: str = "miner.db", table_name: str = "data", sleep_mins: int = 5
 ):
     miner = await get_miner(ip)
     if miner is None:
@@ -43,12 +43,14 @@ async def save_miner_data(
         while True:
             miner_data = await miner.get_data()
             df = preprocess_data(miner_data.as_dict())
-            with sqlite3.connect(db_file) as conn:
-                df.to_sql(table_name, conn, if_exists="append", index=False)
+            if data_file.endswith(".csv"):
+                df.to_csv(data_file, index=False, mode="a")
+            else:
+                with sqlite3.connect(data_file) as conn:
+                    df.to_sql(table_name, conn, if_exists="append", index=False)
             await asyncio.sleep(sleep_mins * 60)
     except asyncio.CancelledError:
-        print(f"Stopped saving miner data to {db_file}")
-        # TODO: cleanup
+        print(f"Stopped saving miner data to {data_file}")
         raise
 
 
