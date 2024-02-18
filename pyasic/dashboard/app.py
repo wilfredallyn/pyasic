@@ -14,7 +14,7 @@ app = dash.Dash(
     suppress_callback_exceptions=True,
 )
 
-page_order = ["Home", "Status", "Hashrate", "Temperature"]
+page_order = ["Status", "Hashrate", "Temperature"]
 ordered_pages = sorted(
     dash.page_registry.values(), key=lambda page: page_order.index(page["name"])
 )

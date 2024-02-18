@@ -8,7 +8,7 @@ from pyasic.viz import get_status_fig
 import pandas as pd
 
 
-dash.register_page(__name__, path="/status", name="Status")
+dash.register_page(__name__, path="/", name="Status")
 
 
 def layout():
