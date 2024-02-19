@@ -1,5 +1,6 @@
 # pyasic
-*A simplified and standardized interface for Bitcoin ASICs.*
+
+_A simplified and standardized interface for Bitcoin ASICs._
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pyasic.svg)](https://pypi.org/project/pyasic/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/pyasic)](https://pypi.org/project/pyasic/)
@@ -13,20 +14,24 @@
 [![License - Apache 2.0](https://img.shields.io/github/license/UpstreamData/pyasic)](https://github.com/UpstreamData/pyasic/blob/master/LICENSE.txt)
 
 ---
+
 ## Intro
 
-Welcome to `pyasic`!  `pyasic` uses an asynchronous method of communicating with ASIC miners on your network, which makes it super fast.
+Welcome to `pyasic`! `pyasic` uses an asynchronous method of communicating with ASIC miners on your network, which makes it super fast.
 
 [Click here to view supported miner types](https://docs.pyasic.org/en/latest/miners/supported_types/)
 
 ---
+
 ## Getting started
 
-Getting started with `pyasic` is easy.  First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
+Getting started with `pyasic` is easy. First, find your miner (or miners) on the network by scanning for them or getting the correct class automatically for them if you know the IP.
 
 ##### Scanning for miners
+
 To scan for miners in `pyasic`, we use the class `MinerNetwork`, which abstracts the search, communication, identification, setup, and return of a miner to 1 command.
 The command `MinerNetwork.scan()` returns a list that contains any miners found.
+
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic.network import MinerNetwork  # miner network handles the scanning
@@ -47,9 +52,12 @@ if __name__ == "__main__":
 ```
 
 ---
+
 ##### Creating miners based on IP
+
 If you already know the IP address of your miner or miners, you can use the `MinerFactory` to communicate and identify the miners, or an abstraction of its functionality, `get_miner()`.
 The function `get_miner()` will return any miner it found at the IP address specified, or an `UnknownMiner` if it cannot identify the miner.
+
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic import get_miner # handles miner creation
@@ -76,13 +84,15 @@ if __name__ == "__main__":
 ```
 
 ---
+
 ## Data gathering
 
-Once you have your miner(s) identified, you will likely want to get data from the miner(s).  You can do this using a built-in function in each miner called `get_data()`.
+Once you have your miner(s) identified, you will likely want to get data from the miner(s). You can do this using a built-in function in each miner called `get_data()`.
 This function will return an instance of the dataclass `MinerData` with all data it can gather from the miner.
 Each piece of data in a `MinerData` instance can be referenced by getting it as an attribute, such as `MinerData().hashrate`.
 
 ##### One miner
+
 ```python
 import asyncio
 from pyasic import get_miner
@@ -97,9 +107,13 @@ async def gather_miner_data():
 if __name__ == "__main__":
     asyncio.run(gather_miner_data())
 ```
+
 ---
+
 ##### Multiple miners
+
 You can do something similar with multiple miners, with only needing to make a small change to get all the data at once.
+
 ```python
 import asyncio  # asyncio for handling the async part
 from pyasic.network import MinerNetwork  # miner network handles the scanning
@@ -120,6 +134,29 @@ if __name__ == "__main__":
 ```
 
 ---
+
+##### Saving Data
+
+Miner data can be saved to a SQLite database or CSV file. Data is preprocessed as a pandas dataframe where dicts for hashboard/fan data are flattened.
+
+```python
+import asyncio
+from pyasic.db import write_data
+
+if __name__ == "__main__":
+    asyncio.run(
+        write_data(
+            ip="192.168.1.75",
+            data_file="miner_data.db",  # Use .csv extension to save as CSV file
+            sleep_mins=1,  # Number of minutes to wait between writes
+        )
+    )
+```
+
+Alternatively, you can use the command `python pyasic/db/save_data.py 192.168.1.75 miner_data.db 1`
+
+---
+
 ## Miner control
 
 `pyasic` exposes a standard interface for each miner using control functions.
@@ -143,6 +180,7 @@ These functions are
 `set_power_limit`.
 
 ##### Usage
+
 ```python
 import asyncio
 from pyasic import get_miner
@@ -159,11 +197,12 @@ if __name__ == "__main__":
 ```
 
 ---
+
 ## Helper dataclasses
 
 ##### `MinerConfig` and `MinerData`
 
-`pyasic` implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs.  The different fields of these dataclasses can all be viewed with the classmethod `cls.fields()`.
+`pyasic` implements a few dataclasses as helpers to make data return types consistent across different miners and miner APIs. The different fields of these dataclasses can all be viewed with the classmethod `cls.fields()`.
 
 ---
 
@@ -174,6 +213,7 @@ if __name__ == "__main__":
 You can call `MinerData.as_dict()` to get the dataclass as a dictionary, and there are many other helper functions contained in the class to convert to different data formats.
 
 `MinerData` instances can also be added to each other to combine their data and can be divided by a number to divide all their data, allowing you to get average data from many miners by doing -
+
 ```python
 from pyasic import MinerData
 
@@ -197,6 +237,7 @@ Each miner has a unique way to convert the `MinerConfig` to their specific type,
 In most cases these helper functions should not be used, as [`send_config()`](#send-config) takes a [`MinerConfig` and will do the conversion to the right type for you.
 
 You can use the `MinerConfig` as follows:
+
 ```python
 import asyncio
 from pyasic import get_miner
@@ -217,9 +258,10 @@ if __name__ == "__main__":
 ```
 
 ---
+
 ## Settings
 
-`pyasic` has settings designed to make using large groups of miners easier.  You can set the default password for all types of miners using the `pyasic.settings` module, used as follows:
+`pyasic` has settings designed to make using large groups of miners easier. You can set the default password for all types of miners using the `pyasic.settings` module, used as follows:
 
 ```python
 from pyasic import settings
@@ -228,6 +270,7 @@ settings.update("default_antminer_password", "my_pwd")
 ```
 
 ##### Default values:
+
 ```
 "network_ping_retries": 1,
 "network_ping_timeout": 3,
@@ -247,3 +290,9 @@ settings.update("default_antminer_password", "my_pwd")
 # Only use this if you know what you are doing
 "socket_linger_time": 1000,
 ```
+
+---
+
+## Dashboard
+
+If you have [saved miner data to SQLite](#saving-data), you can analyze it with interactive python visualizations in a plotly [dash](https://dash.plotly.com/) app. Start dashboard with `python pyasic/dashboard/app.py miner_data.db` and go to `http://localhost:8050/` in your web browser.

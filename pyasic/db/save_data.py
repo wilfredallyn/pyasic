@@ -17,7 +17,7 @@ args = parser.parse_args()
 
 
 if __name__ == "__main__":
-    # python collect_data.py 192.168.0.161 miner_data.db 1
+    # python save_data.py 192.168.0.161 miner_data.db 1
     asyncio.run(
         write_data(args.ip, data_file=args.data_file, sleep_mins=args.sleep_mins)
     )
