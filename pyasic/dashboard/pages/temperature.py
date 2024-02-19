@@ -4,7 +4,7 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from io import StringIO
 import json
-from pyasic.viz import get_temperature_fig
+from pyasic.dashboard import get_temperature_fig
 import pandas as pd
 
 

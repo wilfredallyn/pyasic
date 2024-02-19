@@ -15,6 +15,7 @@
 # ------------------------------------------------------------------------------
 from pyasic import settings
 from pyasic.config import MinerConfig
+from pyasic.dashboard import *
 from pyasic.data import MinerData
 from pyasic.db import *
 from pyasic.errors import APIError, APIWarning
@@ -22,5 +23,4 @@ from pyasic.miners import *
 from pyasic.network import MinerNetwork
 from pyasic.rpc import *
 from pyasic.ssh import *
-from pyasic.viz import *
 from pyasic.web import *
