@@ -4,7 +4,9 @@ from dash import dcc, html
 from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 import json
+import pandas as pd
 from pyasic.db import load_db
+import sys
 
 
 app = dash.Dash(
@@ -66,10 +68,23 @@ args = parser.parse_args()
 
 @app.callback(Output("data-store", "data"), [Input("url", "pathname")])
 def load_data(pathname):
-    df = load_db(args.data_file, table_name=args.table_name)
+    try:
+        df = load_db(args.data_file, table_name=args.table_name)
+    except dash.exceptions.PreventUpdate as e:
+        print(
+            f"Could not find database '{args.data_file}' or table '{args.table_name}'"
+        )
+        return html.Div(str(e))  # Display an error message or handle as needed
     # json serialize for dcc.store
     return json.dumps(df.to_json(orient="split"))
 
 
 if __name__ == "__main__":
+    try:
+        df = load_db(args.data_file, table_name=args.table_name)
+    except pd.errors.DatabaseError:
+        print(
+            f"Could not find database '{args.data_file}' or table '{args.table_name}'"
+        )
+        sys.exit(1)
     app.run_server(debug=True)
