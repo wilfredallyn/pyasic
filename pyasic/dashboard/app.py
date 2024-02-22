@@ -67,14 +67,8 @@ args = parser.parse_args()
 
 
 @app.callback(Output("data-store", "data"), [Input("url", "pathname")])
-def load_data(pathname):
-    try:
-        df = load_db(args.data_file, table_name=args.table_name)
-    except dash.exceptions.PreventUpdate as e:
-        print(
-            f"Could not find database '{args.data_file}' or table '{args.table_name}'"
-        )
-        return html.Div(str(e))  # Display an error message or handle as needed
+def load_data(pathname: str) -> str:
+    df = load_db(args.data_file, table_name=args.table_name)
     # json serialize for dcc.store
     return json.dumps(df.to_json(orient="split"))
 

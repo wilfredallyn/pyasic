@@ -4,14 +4,15 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from io import StringIO
 import json
-from pyasic.dashboard import get_temperature_fig
 import pandas as pd
+import plotly.graph_objects as go
+from pyasic.dashboard import get_temperature_fig
 
 
 dash.register_page(__name__, path="/temperature", name="Temperature")
 
 
-def layout():
+def layout() -> html.Div:
     return html.Div(
         [
             dbc.Container(
@@ -29,7 +30,7 @@ def layout():
 
 
 @callback(Output("temperature-graph", "figure"), [Input("data-store", "data")])
-def update_temperature_graph(data):
+def update_temperature_graph(data: str) -> go.Figure:
     if data is None:
         return {}
 

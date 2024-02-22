@@ -4,7 +4,7 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
 
-def get_status_fig(df):
+def get_status_fig(df: pd.DataFrame) -> go.Figure:
     fig = make_subplots(specs=[[{"secondary_y": True}]])
     fig.add_trace(
         go.Scatter(x=df["datetime"], y=df["hashrate"], name="Hashrate"),
@@ -23,13 +23,12 @@ def get_status_fig(df):
     fig.update_yaxes(title_text="Temperature", secondary_y=True)
     fig.update_yaxes(range=[0, 50], secondary_y=False)
     fig.update_yaxes(range=[0, 100], secondary_y=True)
-
     return fig
 
 
-def get_hashrate_fig(df):
+def get_hashrate_fig(df: pd.DataFrame) -> go.Figure:
     avg_hashrate = (
-        df[["hashboards_0_hashrate", "hashboards_1_hashrate", "hashboards_2_hashrate"]]
+        df[["hashboard_0_hashrate", "hashboard_1_hashrate", "hashboard_2_hashrate"]]
         .mean(axis=0)
         .sum()
     )
@@ -37,8 +36,8 @@ def get_hashrate_fig(df):
     fig = px.line(
         df,
         x="datetime",
-        y=["hashboards_0_hashrate", "hashboards_1_hashrate", "hashboards_2_hashrate"],
-        labels={"value": "Hashrate", "variable": "Hashboards"},
+        y=["hashboard_0_hashrate", "hashboard_1_hashrate", "hashboard_2_hashrate"],
+        labels={"value": "Hashrate", "variable": "Hashboard"},
         title="Hashrate over Time",
     )
 
@@ -56,15 +55,15 @@ def get_hashrate_fig(df):
     return fig
 
 
-def get_temperature_fig(df):
+def get_temperature_fig(df: pd.DataFrame) -> go.Figure:
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    temp_cols = [col for col in df.columns if "hashboards_" in col and "temp" in col]
+    temp_cols = [col for col in df.columns if "hashboard_" in col and "temp" in col]
     for col in temp_cols:
         fig.add_trace(
             go.Scatter(
                 x=df["datetime"],
                 y=df[col],
-                name=col.replace("hashboards_", "")
+                name=col.replace("hashboard_", "")
                 .replace("_chip_temp", " Chip")
                 .replace("_temp", " Board"),
             ),
@@ -72,14 +71,14 @@ def get_temperature_fig(df):
         )
 
     fan_cols = [
-        col for col in df.columns if col.startswith("fans_") and col.endswith("_speed")
+        col for col in df.columns if col.startswith("fan_") and col.endswith("_speed")
     ]
     for col in fan_cols:
         fig.add_trace(
             go.Scatter(
                 x=df["datetime"],
                 y=df[col],
-                name=col.replace("fans_", "Fan ").replace("_speed", ""),
+                name=col.replace("fan_", "Fan ").replace("_speed", ""),
                 line=dict(dash="dot"),
             ),
             secondary_y=True,
@@ -106,5 +105,4 @@ def get_temperature_fig(df):
         annotation_position="bottom left",
         secondary_y=False,
     )
-
     return fig

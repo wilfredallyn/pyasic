@@ -16,26 +16,31 @@ def preprocess_data(miner_data: dict) -> pd.DataFrame:
     return df
 
 
-def flatten_hashboards(hashboards_data: dict) -> dict:
+def flatten_hashboards(hashboard_data: dict) -> dict:
+    """
+    Flatten hashboard data
+    [ {'slot': 0, 'hashrate': 3.45, ...}] -> {'hashboard_0_slot': 0, 'hashboard_0_hashrate': 3.45, ...}]
+    """
     hashboards = {}
-    for item in hashboards_data:
+    for item in hashboard_data:
         slot = item["slot"]
         for key, value in item.items():
-            hashboards[f"hashboards_{slot}_{key}"] = value
+            hashboards[f"hashboard_{slot}_{key}"] = value
     return hashboards
 
 
-def flatten_fans(fans_data: dict) -> dict:
+def flatten_fans(fan_data: dict) -> dict:
+    """Flatten fan data: [{'speed': 1620}, ...]) -> {'fan_0_speed': 1620, ...}"""
     fans = {}
-    for index, item in enumerate(fans_data):
+    for index, item in enumerate(fan_data):
         for key, value in item.items():
-            fans[f"fans_{index}_{key}"] = value
+            fans[f"fan_{index}_{key}"] = value
     return fans
 
 
 async def write_data(
     ip: str, data_file: str = "miner.db", table_name: str = "data", sleep_mins: int = 5
-):
+) -> None:
     miner = await get_miner(ip)
     if miner is None:
         return
@@ -54,7 +59,7 @@ async def write_data(
         raise
 
 
-def load_db(db_file: str = "miner.db", table_name: str = "data"):
+def load_db(db_file: str = "miner.db", table_name: str = "data") -> pd.DataFrame:
     with sqlite3.connect(db_file) as conn:
         df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
     return df
