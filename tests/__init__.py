@@ -16,6 +16,7 @@
 
 from tests.api_tests import *
 from tests.config_tests import TestConfig
+from tests.db_tests import DBTest
 from tests.miners_tests import MinersTest
 from tests.network_tests import NetworkTest
 

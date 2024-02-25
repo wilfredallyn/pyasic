@@ -2,6 +2,7 @@ import asyncio
 import pandas as pd
 import sqlite3
 from pyasic.miners.factory import get_miner
+from typing import Any
 
 
 def preprocess_data(miner_data: dict) -> pd.DataFrame:
@@ -16,10 +17,10 @@ def preprocess_data(miner_data: dict) -> pd.DataFrame:
     return df
 
 
-def flatten_hashboards(hashboard_data: dict) -> dict:
+def flatten_hashboards(hashboard_data: list[dict[str, Any]]) -> dict:
     """
     Flatten hashboard data
-    [ {'slot': 0, 'hashrate': 3.45, ...}] -> {'hashboard_0_slot': 0, 'hashboard_0_hashrate': 3.45, ...}]
+    [ {'slot': 0, 'hashrate': 3.45, ...}, ...] -> {'hashboard_0_slot': 0, 'hashboard_0_hashrate': 3.45, ...}]
     """
     hashboards = {}
     for item in hashboard_data:
@@ -29,7 +30,7 @@ def flatten_hashboards(hashboard_data: dict) -> dict:
     return hashboards
 
 
-def flatten_fans(fan_data: dict) -> dict:
+def flatten_fans(fan_data: list[dict[str, Any]]) -> dict:
     """Flatten fan data: [{'speed': 1620}, ...]) -> {'fan_0_speed': 1620, ...}"""
     fans = {}
     for index, item in enumerate(fan_data):
