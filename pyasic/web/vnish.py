@@ -69,19 +69,29 @@ class VNishWebAPI(BaseWebAPI):
                     if command.startswith("system"):
                         auth = "Bearer " + self.token
 
+                    url = f"http://{self.ip}:{self.port}/api/v1/{command}"
+                    print(f"Debug - URL: {url}")  # Debug print
+                    print(f"Debug - Method: {'POST' if post else 'GET'}")
+                    print(f"Debug - Parameters: {parameters}")
+
                     if post:
                         response = await client.post(
-                            f"http://{self.ip}:{self.port}/api/v1/{command}",
+                            url,
                             headers={"Authorization": auth},
                             timeout=settings.get("api_function_timeout", 5),
                             json=parameters,
                         )
                     else:
                         response = await client.get(
-                            f"http://{self.ip}:{self.port}/api/v1/{command}",
+                            url,
                             headers={"Authorization": auth},
                             timeout=settings.get("api_function_timeout", 5),
                         )
+
+                    print(f"Debug - Status: {response.status_code}")  # Debug print
+                    text = response.text
+                    print(f"Debug - Response text: {text}")  # Debug print
+
                     if not response.status_code == 200:
                         # refresh the token, retry
                         await self.auth()
@@ -90,7 +100,8 @@ class VNishWebAPI(BaseWebAPI):
                     if json_data:
                         return json_data
                     return {"success": True}
-                except (httpx.HTTPError, json.JSONDecodeError, AttributeError):
+                except (httpx.HTTPError, json.JSONDecodeError, AttributeError) as e:
+                    print(f"Debug - Exception: {str(e)}")  # Debug print
                     pass
 
     async def multicommand(
@@ -137,6 +148,16 @@ class VNishWebAPI(BaseWebAPI):
 
     async def settings(self) -> dict:
         return await self.send_command("settings")
+
+    async def set_power_limit(self, power_limit: str | int) -> dict:
+        # Note: Can only set power limit to tuned preset
+        settings = await self.settings()
+        settings["miner"]["overclock"]["preset"] = str(power_limit)
+        new_settings = {"miner": {"overclock": settings["miner"]["overclock"]}}
+
+        return await self.send_command(
+            "settings", privileged=True, **new_settings
+        )
 
     async def autotune_presets(self) -> dict:
         return await self.send_command("autotune/presets")

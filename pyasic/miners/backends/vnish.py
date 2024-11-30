@@ -265,3 +265,15 @@ class VNish(VNishFirmware, BMMiner):
             return self.config
         self.config = MinerConfig.from_vnish(web_settings)
         return self.config
+
+    async def set_power_limit(self, power_limit: str | int) -> bool:
+        # Note: Can only set power limit to tuned preset
+        data = await self.web.set_power_limit(power_limit)
+        print(f"Debug - API Response: {data}")
+        if data:
+            try:
+                return data["success"]
+            except KeyError:
+                print(f"Debug - KeyError: 'success' not found in response")
+                pass
+        return False
